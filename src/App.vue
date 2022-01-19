@@ -1,30 +1,81 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+  <div>
+    <DxDataGrid
+      id="gridContainer"
+      :data-source="employees"
+      key-expr="id"
+      :show-borders="true"
+    >
+      <DxFilterRow
+        :visible="showFilterRow"
+        :apply-filter="currentFilter"
+      />
+      <DxHeaderFilter
+        :visible="showHeaderFilter"
+      />
+      <DxSearchPanel
+        :visible="true"
+        :width="240"
+        placeholder="Search..."
+      />
+      <DxColumn
+        :width="100"
+        :allow-sorting="false"
+        data-field="profile_image"
+        cell-template="cellTemplate"
+      />
+      <DxColumn data-field="employee_name"/>
+      <DxColumn data-field="employee_salary" alignment="center"/>
+      <DxColumn data-field="employee_age" alignment="center"/>
+      <template #cellTemplate="{ data }">
+        <img :src="data.value">
+      </template>
+    </DxDataGrid>
   </div>
-  <router-view/>
 </template>
+<script>
+import {
+  DxDataGrid,
+  DxColumn,
+  DxHeaderFilter,
+  DxSearchPanel,
+  DxFilterRow,
+} from 'devextreme-vue/data-grid';
+import axios from 'axios';
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+
+export default {
+  components: {
+    DxDataGrid,
+    DxColumn,
+    DxHeaderFilter,
+    DxSearchPanel,
+    DxFilterRow,
+  },
+  data() {
+    return {
+      employees: this.fetchEmployee(),
+    };
+  },
+  methods: {
+    async fetchEmployee() {
+      try {
+        const response = await axios.get('https://dummy.restapiexample.com/api/v1/employees');
+        this.employees = response.data.data;
+      } catch (e) {
+        alert('Ошибка')
+        }
+    }
+  },
+};
+</script>
+<style scoped>
+#gridContainer {
+  height: 600px;
 }
 
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
+/* img {
+  height: 100px;
+  display: block;
+} */
 </style>
